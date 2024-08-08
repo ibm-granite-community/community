@@ -16,13 +16,20 @@ Change to the root directory of your "target" repo clone, for example, `granite-
 
 ```shell
 cp ../community/githooks/prepare-commit-msg .git/hooks
+chmod +x .git/hooks/prepare-commit-msg
 ```
 
 ### If You Don't Have a Local Clone of the `community` Repo
 
 In this case, create a new file in your editor, `.git/hooks/prepare-commit-msg` (starting in the root directory of your local clone of another repo).
 
-Copy the contents of [the file in GitHub]() and paste it into the file.
+Copy the contents of [the file in GitHub](prepare-commit-msg) and paste it into the file.
+
+Finally, make it executable:
+
+```shell
+chmod +x .git/hooks/prepare-commit-msg
+```
 
 ### How It Works
 
