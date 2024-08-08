@@ -97,6 +97,8 @@ git commit -s
 
 If you don't want to make this a global alias, omit `--global` and run the command in each repo's root directory where you want to use it. The alias will be added to the `.git/config` file for your local repo clone.
 
+If you forgot to sign commits, you'll find out the hard way when you create a PR, because the _DCO_ GitHub app we use will reject the PR. You can amend the commit, as just described, but to prevent this from happening, consider using the git hook `githooks/prepare-commit-msg` provided in this repo's `githooks` directory. See [`githooks/README.md`](githooks/README.md) for instructions.
+
 ### Licenses
 
 Unless specifically stated, all projects are distributed under a suitable "open" license. Use the following guidelines:
