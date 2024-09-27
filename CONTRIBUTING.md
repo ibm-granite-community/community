@@ -16,7 +16,13 @@ This project adheres to our [Code of Conduct][CoC]. By participating, you are ex
 
 This organization utilizes the Linux Foundation’s [Developer Certificate of Origin][DCO] (DCO) on a per-commit basis to enable contributions to Core Projects. The DCO does not require the committer to give away ownership of the contribution - your IP remains yours and others' IP remains theirs.
 
-Using DCO is discussed in more detail [below](#legal).
+Using DCO signoff is discussed in more detail [below](#legal).
+
+### Signed Commits
+
+This organization utilizes GitHub's recommended practices for integration branch management (e.g., `main`), including the requirement to GPG or SSH sign commits.
+
+Setting up signing of commits is discussed in more detail [below](#signing-commits).
 
 ## The GitHub Organization and Repositories
 
@@ -79,16 +85,16 @@ Signed-off-by: John Doe <john.doe@example.com>
 This can be included automatically in a commit to a local Git repository using the following command:
 
 ```shell
-git commit -s
+git commit --signoff ... # or use -s
 ```
 
 > **Tips:** 
 > 
-> 1. If a commit is created that did not include the `-s` option, the original commit message can be edited by using the `git commit -s --amend` command. A "force push" must be done afterward to add the amended commit to a PR.
-> 2. Consider creating a git _alias_ that permanently adds the `-s` flag to all commits. For example, let's define a `cs` alias for this purpose:
+> 1. If a commit was created that did not include the `-s` or `--signoff` flag, the original commit message can be edited by using the `git commit -s --amend` command. A "force push" must be done afterward to add the amended commit to a PR.
+> 2. Consider creating a git _alias_ that permanently adds the `--signoff` flag to all commits. For example, let's define a `cs` alias for this purpose:
 > 
 > ```shell
-> git config --global alias.cs "commit -s"
+> git config --global alias.cs "commit --signoff"
 > ...
 > git cs -m 'Some comment' changed_files
 > ```
@@ -97,7 +103,36 @@ git commit -s
 
 If you don't want to make this a global alias, omit `--global` and run the command in each repo's root directory where you want to use it. The alias will be added to the `.git/config` file for your local repo clone.
 
-If you forgot to sign commits, you'll find out the hard way when you create a PR, because the _DCO_ GitHub app we use will reject the PR. You can amend the commit, as just described, but to prevent this from happening, consider using the git hook `githooks/prepare-commit-msg` provided in this repo's `githooks` directory. See [`githooks/README.md`](githooks/README.md) for instructions.
+If you forgot to sign off commits, you'll find out the hard way when you create a PR, because the _DCO_ GitHub app we use will reject the PR. There is a way to prevent commits without signoffs; use the git hook `githooks/prepare-commit-msg` provided in this repo's `githooks` directory. See [`githooks/README.md`](githooks/README.md) for instructions. This can only be used in local copies of a repo.
+
+## Signing Commits
+
+Following GitHub's recommendations for integration branch management (e.g., `main`), we require commits to be signed. _This is different than DCO sign**off**_, discussed above. Here, we mean using [Gnu GPG](https://gnupg.org) or SSH to digitally sign each commit. 
+
+To sign a commit, you add either the `--gpg-sign` or `-S` (capital `S`) flag to the commit. You can define an alias to include this flag, like we discussed above for DCO sign**off**, but we'll discuss using a configuration setting that turns on signing for all commits automatically. Similarly for signoff, if you forget to sign a commit, try using `git commit -S -s --amend ...` to fix it.
+
+There are a few steps you will need to do locally and in your GitHub user account to set up signing. We'll assume you want to use SSH, so you don't have to install GPG. For full instructions, including how to use GPG, see [this GitHub page](https://docs.github.com/en/authentication/managing-commit-signature-verification/signing-commits).
+
+First, create a key, if you don't have one. For example:
+
+```shell
+ssh-keygen -t ed25519 -C "your_email@example.com"
+```
+
+Now create a _signing key_ in your [GitHub account](https://github.com/settings/keys), if you don't already have one. In your account's [settings page for keys](https://github.com/settings/keys), click the green "New SSH key" button. Make sure you select "Signing key" in the menu for the key type. Name the key and paste the contents of your newly-created (or previously-existing) **public** key file, `~/.ssh/id_ed25519.pub`.
+
+Now tell your local git environment about the key. See [here](https://docs.github.com/en/authentication/managing-commit-signature-verification/telling-git-about-your-signing-key) for full instructions.
+
+```shell
+git config --global gpg.format ssh
+git config --global user.signingkey ~/.ssh/id_ed25519.pub # or another /PATH/TO/.SSH/KEY.PUB file
+git config --global commit.gpgsign true
+```
+
+> **NOTES:** 
+> 
+> 1. Setting `commit.gpgsign` to be `true` means that you don't have to provide the `--gpg-sign` or `-S` flag to `git commit`. Signing will be done automatically.
+> 2. As discussed above for signoff, if you don't want to make these changes globally, omit the `--global` flag in these commands and run them in each repo where they should apply.
 
 ### Licenses
 
